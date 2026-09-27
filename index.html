@@ -352,9 +352,23 @@ details.plan summary{cursor:pointer;font-weight:600}
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
 </div>
 
-<script>
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-app.js";
+import { getDatabase, ref, onValue, set } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-database.js";
 (function(){
 "use strict";
+
+var firebaseConfig = {
+  apiKey: "AIzaSyCgbgbWWq2wI3L6XE_UvAzhpIL-xECaTDY",
+  authDomain: "tagaytay-trip-21ad7.firebaseapp.com",
+  databaseURL: "https://tagaytay-trip-21ad7-default-rtdb.asia-southeast1.firebasedatabase.app",
+  projectId: "tagaytay-trip-21ad7",
+  storageBucket: "tagaytay-trip-21ad7.firebasestorage.app",
+  messagingSenderId: "688571296013",
+  appId: "1:688571296013:web:41077431b7e5ef215f2844"
+};
+var fbApp = initializeApp(firebaseConfig);
+var db = getDatabase(fbApp);
 var DAYS = [{"title": "Arrival and a quiet night in", "sub": "Monday, November 16. Bus up, late lunch with a view, groceries, and an early night to recharge.", "stops": [{"time": "10:00 AM", "key": true, "title": "Prepare and pack", "desc": "Pack light in a backpack since you'll be commuting. Bring snacks, water, and small bills for fares.", "tag": "At home", "cost": "Free"}, {"time": "11:00 AM", "key": false, "title": "Head to DLTB Buendia terminal", "desc": "Take the LRT or a jeep to the terminal near LRT Buendia (Gil Puyat). Aim to arrive by 11:45 AM.", "tag": "Travel", "cost": "~₱100 for 2"}, {"time": "12:00 PM", "key": true, "title": "Board the DLTB bus", "desc": "Look for the signboard \"Nasugbu via Aguinaldo\". Tell the conductor you're getting off at Olivarez Plaza. About 2 hours, pay the conductor on board.", "tag": "Bus", "cost": "~₱300 for 2"}, {"time": "2:00 PM", "key": true, "title": "Arrive and check in at Cottage Charm", "desc": "Short tricycle ride from Olivarez Plaza to Avida Serin East Tower 1, behind Ayala Malls Serin. Smartlock self check-in, 7th floor.", "tag": "Stay", "cost": "~₱60 tricycle"}, {"time": "2:45 PM", "key": true, "title": "Late lunch at Lawa Cafe", "desc": "Tricycle west along Aguinaldo Highway. Share a big plate like grilled liempo, add turon and coffee, and enjoy the Taal view from the al fresco tables.", "tag": "Food", "cost": "~₱700 incl. ride"}, {"time": "4:00 PM", "key": false, "title": "Grocery run at Ayala Malls Serin", "desc": "Tricycle back to Serin and hit the supermarket behind the building. Shop for tonight's dinner and two breakfasts: rice, eggs, bread, hotdogs or longganisa, canned goods or pancit canton, some veggies, fruit, and water. Keep it simple since the kitchenette is for light cooking only.", "tag": "Shopping", "cost": "~₱510 incl. tricycle"}, {"time": "5:00 PM", "key": true, "title": "Rest at the condo", "desc": "Ebeth worked 2 AM to 8 AM on Sunday, so take the rest of the afternoon slow. Nap, hot shower, Netflix.", "tag": "Rest", "cost": "Free"}, {"time": "7:00 PM", "key": false, "title": "Cook dinner at the condo", "desc": "Cook a simple dinner with the groceries you bought earlier.", "tag": "Food", "cost": "Covered"}, {"time": "9:00 PM", "key": false, "title": "Early night", "desc": "Lights out early for the 5 AM wake-up.", "tag": "Rest", "cost": "Free"}]}, {"title": "Picnic Grove, bulalo, and work with a view", "sub": "Tuesday, November 17. An early Picnic Grove walk, work blocks at the condo, bulalo lunch, and a Taal-view sunset.", "stops": [{"time": "5:00 AM", "key": false, "title": "Wake up and catch the sunrise", "desc": "Sunrise is around 5:45 to 6:00 AM. Ask the Serin East reception about the viewing deck for morning mist over Taal.", "tag": "Views", "cost": "Free"}, {"time": "6:00 AM", "key": false, "title": "Breakfast at the condo", "desc": "Cook breakfast with your groceries and the starter-kit coffee.", "tag": "Food", "cost": "Covered"}, {"time": "7:00 AM", "key": true, "title": "Picnic Grove and zipline", "desc": "Tricycle down Tagaytay–Calamba Road. Ride the zipline at Picnic Town (about ₱300 each for a two-way ride), then walk the ridge, Sky Walk, and viewpoints while it's cool and quiet. Opening hours vary by source, so call (046) 413 4206 to confirm the park and zipline are running by 7 AM on a weekday.", "tag": "Activity", "cost": "~₱850 for 2 incl. zipline and tricycle"}, {"time": "9:00 AM", "key": false, "title": "Back to the condo to rest and work", "desc": "Tricycle back to Serin. Rest up and get some work done on the Wi-Fi.", "tag": "Work", "cost": "~₱100 tricycle"}, {"time": "12:00 PM", "key": true, "title": "Lunch: bulalo at Charito by Bag of Beans", "desc": "Short tricycle ride down Aguinaldo Highway. A cozy heritage-house dining room with a Taal Lake view, and reviewers say the bulalo is rich and flavorful. One order is enough for two. It gets busy at noon, so go a little early.", "tag": "Food", "cost": "~₱1,060 incl. ride"}, {"time": "1:45 PM", "key": false, "title": "Pink Sisters Adoration Convent", "desc": "Quick tricycle ride from Charito, then back to the condo. A quiet chapel stop, dress modestly. Donations are optional.", "tag": "Culture", "cost": "~₱120 tricycle"}, {"time": "2:30 PM", "key": false, "title": "Condo break to work", "desc": "Another work block back at the condo.", "tag": "Work", "cost": "Free"}, {"time": "4:30 PM", "key": true, "title": "Work and sunset at Sip n' Brew by Miara", "desc": "Leave the condo around 4:00 and jeep west on Tagaytay–Nasugbu Highway toward Mendez. Settle in with a drink and pancakes, keep working with a wide Taal view, and pause for sunset at around 5:25 PM. Bring a power bank and mobile data in case outlets or Wi-Fi are limited.", "tag": "Sunset", "cost": "~₱400 incl. jeep"}, {"time": "7:00 PM", "key": false, "title": "Dinner at La View De Taal", "desc": "A short walk from Sip n' Brew at Mendez Crossing East. Filipino dishes with portions big enough to share, in a quiet, uncrowded spot. Open until 10 PM (closed Mondays, open Tuesday).", "tag": "Food", "cost": "~₱700"}, {"time": "8:00 PM", "key": false, "title": "Back to the condo", "desc": "Tricycle back to Serin. Agree on the fare first since night rides cost more.", "tag": "Rest", "cost": "~₱150"}]}, {"title": "Slow morning, then home", "sub": "Wednesday, November 18. Church, noon check-out, lunch at the mall, and the bus back.", "stops": [{"time": "7:30 AM", "key": false, "title": "Breakfast at the condo", "desc": "Cook breakfast with the last of your groceries.", "tag": "Food", "cost": "Covered"}, {"time": "8:45 AM", "key": false, "title": "Our Lady of Lourdes Parish", "desc": "A peaceful morning stop close to Serin.", "tag": "Culture", "cost": "~₱50 tricycle"}, {"time": "10:30 AM", "key": false, "title": "Pack up", "desc": "Final sweep for chargers and laptops, and follow the CLAYGO rule: trash goes to the garbage room beside the elevator.", "tag": "Stay", "cost": "Free"}, {"time": "12:00 PM", "key": true, "title": "Check out", "desc": "The listing says there's no late check-out, so confirm with Leah that 12 PM is okay.", "tag": "Stay", "cost": "Free"}, {"time": "12:30 PM", "key": false, "title": "Lunch at LZM Restaurant, Ayala Malls Serin", "desc": "Walk over with your bags. Filipino classics in big servings, and reviewers like the boneless bangus and kare-kare. It gets busy at mealtimes.", "tag": "Food", "cost": "~₱450"}, {"time": "1:45 PM", "key": false, "title": "Tricycle to Olivarez Plaza", "desc": "Head to the bus stop with your bags. Grab water and use the restroom.", "tag": "Travel", "cost": "~₱60"}, {"time": "2:00 PM", "key": true, "title": "Bus home to Buendia", "desc": "Catch a DLTB bus with a \"Buendia\" signboard. Expect about 2.5 to 4 hours with traffic, then LRT or jeep home.", "tag": "Bus", "cost": "~₱400 for 2 incl. LRT"}]}];
 var DAY_TABS = [["Mon","Nov 16"],["Tue","Nov 17"],["Wed","Nov 18"]];
 var BUDGET = 10000;
@@ -399,15 +413,33 @@ var PACK = [
   ["meds","Personal medicines"],["bag","Reusable grocery bag"],["towel","Spare towel (extras cost extra)"]
 ];
 
-/* storage: per-phone, always guarded */
+/* storage: local cache + shared Firebase sync so Jr. and Ebeth see the same data */
 function load(k,d){try{var v=localStorage.getItem(k);return v?JSON.parse(v):d;}catch(e){return d;}}
-function save(k,v){try{localStorage.setItem(k,JSON.stringify(v));}catch(e){}}
+function dbPath(k){return k.replace(/\./g,"_");}
+function save(k,v){
+  try{localStorage.setItem(k,JSON.stringify(v));}catch(e){}
+  try{set(ref(db,dbPath(k)),v);}catch(e){}
+}
 var done = load("tt.done",{});
 var todos = load("tt.todo",{});
 var pack = load("tt.pack",{});
 var spend = load("tt.spend",[]);
 if(!Array.isArray(spend)) spend=[];
 spend.forEach(function(e){if(e&&e.by==="Els")e.by="Ebeth";});
+
+/* pull in live changes made on the other phone */
+function watch(k, def, applyFn){
+  onValue(ref(db,dbPath(k)), function(snap){
+    var val = snap.val();
+    if(val===null){ try{set(ref(db,dbPath(k)),load(k,def));}catch(e){} return; }
+    applyFn(val);
+    try{localStorage.setItem(k,JSON.stringify(val));}catch(e){}
+  });
+}
+watch("tt.done", {}, function(v){done=v||{}; if(view==="plan") renderPlan(renderHeader());});
+watch("tt.todo", {}, function(v){todos=v||{}; if(view==="pack") renderPack();});
+watch("tt.pack", {}, function(v){pack=v||{}; if(view==="pack") renderPack();});
+watch("tt.spend", [], function(v){spend=Array.isArray(v)?v:[]; if(view==="spend") renderSpend();});
 
 function $(id){return document.getElementById(id);}
 function esc(s){return String(s).replace(/[&<>"']/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c];});}
