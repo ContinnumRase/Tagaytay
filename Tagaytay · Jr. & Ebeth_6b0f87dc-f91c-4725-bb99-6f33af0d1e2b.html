@@ -1,0 +1,626 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#2F4B3B">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Tagaytay">
+<title>Tagaytay · Jr. &amp; Ebeth</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Figtree:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px);
+  padding-bottom:env(safe-area-inset-bottom,0px);
+  --mist:#E7EDEB; --paper:#F7FAF9; --lake:#1F4E5A; --pine:#2F4B3B;
+  --gold:#C98E1E; --ink:#1A2427; --muted:#56666A; --line:#C9D5D2;
+  --ridge:#6F8B84; --water:#7FA3A8; --on-pine:#F7FAF9; --soft:#DCE6E3;
+  --danger:#A3392B;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --mist:#121A1C; --paper:#1A2427; --lake:#8CC3CE; --pine:#9CC3A8;
+    --gold:#E4B652; --ink:#E6EEEC; --muted:#9FB0B2; --line:#2E3C3F;
+    --ridge:#2C4440; --water:#274B55; --on-pine:#121A1C; --soft:#22302F;
+    --danger:#F08A7A;
+  }
+}
+:root[data-theme="dark"]{
+  --mist:#121A1C; --paper:#1A2427; --lake:#8CC3CE; --pine:#9CC3A8;
+  --gold:#E4B652; --ink:#E6EEEC; --muted:#9FB0B2; --line:#2E3C3F;
+  --ridge:#2C4440; --water:#274B55; --on-pine:#121A1C; --soft:#22302F;
+  --danger:#F08A7A;
+}
+*,*::before,*::after{box-sizing:inherit}
+html{scroll-padding-top:env(safe-area-inset-top,0px);-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--mist);color:var(--ink);font:400 1rem/1.5 Figtree,system-ui,-apple-system,"Segoe UI",sans-serif;-webkit-tap-highlight-color:transparent}
+h1,h2,h3{font-family:"Bricolage Grotesque",Figtree,system-ui,sans-serif;line-height:1.1;margin:0}
+button{font:inherit;color:inherit}
+a{color:var(--lake)}
+:focus-visible{outline:3px solid var(--gold);outline-offset:2px;border-radius:6px}
+.wrap{max-width:560px;margin:0 auto}
+
+/* Sky header: the one bold element. Its colours follow the time of day in Tagaytay. */
+.sky{position:relative;overflow:hidden;color:#FFFDF7;
+  --s1:#8FB6C4; --s2:#D9E7E6; --sun:#F6D98B; --ridgeA:#4E6E68; --ridgeB:#2F4B3B; --lakeC:#6F99A2}
+.sky[data-phase="dawn"]{--s1:#6E7FA8; --s2:#F2C9A5; --sun:#F7B57B; --lakeC:#8C9DB5}
+.sky[data-phase="day"]{--s1:#5E97AE; --s2:#CFE3E4; --sun:#FBE7A6; --lakeC:#5F8E98}
+.sky[data-phase="golden"]{--s1:#B8667A; --s2:#F3B866; --sun:#FFE2A0; --lakeC:#C98E6A}
+.sky[data-phase="night"]{--s1:#0F1A2E; --s2:#2A3B5A; --sun:#E9EDF5; --ridgeA:#1D2E33; --ridgeB:#142226; --lakeC:#2A4058}
+.sky-bg{position:absolute;inset:0;background:linear-gradient(180deg,var(--s1),var(--s2));transition:background .6s}
+.sky svg{position:absolute;left:0;right:0;bottom:0;width:100%;height:120px}
+.sky .stars{opacity:0;transition:opacity .6s}
+.sky[data-phase="night"] .stars{opacity:1}
+.sky-text{position:relative;padding:1.1rem 1.25rem 7.2rem;min-height:15.5rem;text-shadow:0 1px 10px rgba(0,0,0,.25)}
+.sky-top{display:flex;justify-content:space-between;align-items:center;font-weight:600;font-size:.92rem}
+.sky-top .clock{font-variant-numeric:tabular-nums;opacity:.95}
+.sky h1{font-size:clamp(1.9rem,8.5vw,2.6rem);font-weight:800;letter-spacing:-.02em;margin-top:1rem;max-width:16ch}
+.sky .next{margin:.55rem 0 0;font-size:1.02rem;font-weight:500;max-width:34ch}
+.sky .next b{font-weight:700}
+.sky .lead{margin:1rem 0 0;font-weight:600;font-size:.92rem;opacity:.95;min-height:1.2em}
+.sky .lead:empty{display:none}
+.sky .lead + h1{margin-top:.2rem}
+.sky.compact .sky-text{min-height:0;padding-bottom:5.6rem}
+.sky.compact h1,.sky.compact .next,.sky.compact .lead{display:none}
+
+/* Views */
+main{padding-bottom:calc(76px + env(safe-area-inset-bottom,0px))}
+.view{display:none}
+.view.on{display:block}
+.pad{padding:0 1rem}
+
+/* Day switcher */
+.days{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--mist);padding:.75rem 1rem .6rem;border-bottom:1px solid var(--line)}
+.seg{display:grid;grid-template-columns:repeat(3,1fr);background:var(--soft);border-radius:12px;padding:4px;gap:4px}
+.seg button{border:0;background:transparent;border-radius:9px;padding:.5rem .25rem;font-weight:600;font-size:.92rem;cursor:pointer;line-height:1.2}
+.seg button small{display:block;font-weight:500;font-size:.75rem;color:var(--muted)}
+.seg button[aria-selected="true"]{background:var(--paper);box-shadow:0 1px 2px rgba(0,0,0,.12)}
+.seg button[aria-selected="true"] small{color:var(--lake)}
+.seg .today-dot{display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--gold);margin-left:4px;vertical-align:middle}
+.day-intro{padding:1.1rem 1rem .4rem}
+.day-intro h2{font-size:1.45rem;font-weight:700;letter-spacing:-.01em}
+.day-intro p{margin:.35rem 0 0;color:var(--muted);font-size:.95rem}
+.day-meta{display:flex;justify-content:space-between;margin-top:.65rem;font-size:.85rem;color:var(--muted)}
+
+/* Timeline */
+.tl{list-style:none;margin:.5rem 0 1rem;padding:0 1rem;position:relative}
+.tl::before{content:"";position:absolute;left:calc(1rem + 17px);top:10px;bottom:10px;width:2px;background:var(--line)}
+.stop{position:relative;display:grid;grid-template-columns:36px 1fr;gap:.6rem;padding:.35rem 0}
+.check{position:relative;z-index:1;width:36px;height:36px;border-radius:50%;border:2px solid var(--line);background:var(--mist);display:grid;place-items:center;cursor:pointer;margin-top:.45rem;padding:0}
+.stop.key .check{border-color:var(--ridge)}
+.check svg{width:18px;height:18px;opacity:0;transform:scale(.6);transition:opacity .15s,transform .15s}
+.stop.done .check{background:var(--pine);border-color:var(--pine);color:var(--on-pine)}
+.stop.done .check svg{opacity:1;transform:none}
+.card{background:var(--paper);border:1px solid var(--line);border-radius:14px;overflow:hidden}
+.stop.now .card{border-color:var(--gold);box-shadow:0 0 0 2px var(--gold) inset}
+.stop.now .check{border-color:var(--gold)}
+.head{display:block;width:100%;text-align:left;border:0;background:none;padding:.7rem .85rem;cursor:pointer}
+.head .row{display:flex;justify-content:space-between;align-items:baseline;gap:.5rem}
+.head .t{font-weight:700;font-size:.85rem;color:var(--lake);font-variant-numeric:tabular-nums}
+.head .badge{font-size:.72rem;font-weight:700;color:var(--on-pine);background:var(--gold);border-radius:999px;padding:.1rem .5rem}
+.head .title{display:block;font-family:"Bricolage Grotesque",Figtree,sans-serif;font-weight:700;font-size:1.08rem;line-height:1.2;margin-top:.15rem}
+.stop.done .title{color:var(--muted);text-decoration:line-through;text-decoration-thickness:1.5px}
+.head .cost{display:block;font-size:.85rem;color:var(--muted);margin-top:.2rem}
+.more{padding:0 .85rem .85rem}
+.more p{margin:0 0 .75rem;font-size:.95rem}
+.actions{display:flex;flex-wrap:wrap;gap:.45rem}
+.btn{display:inline-flex;align-items:center;gap:.35rem;border:1px solid var(--line);background:var(--mist);border-radius:999px;padding:.45rem .8rem;font-weight:600;font-size:.88rem;text-decoration:none;color:var(--ink);cursor:pointer}
+.btn svg{width:16px;height:16px}
+.btn.primary{background:var(--pine);border-color:var(--pine);color:var(--on-pine)}
+
+/* Generic sections */
+.section{padding:1.1rem 1rem 0}
+.section h2{font-size:1.35rem;font-weight:700;margin-bottom:.6rem}
+.section h3{font-size:1.05rem;font-weight:700;margin-bottom:.4rem}
+.panel{background:var(--paper);border:1px solid var(--line);border-radius:14px;padding:1rem;margin-bottom:.9rem}
+.muted{color:var(--muted)}
+.small{font-size:.88rem}
+
+/* Spend */
+.total{font-family:"Bricolage Grotesque",Figtree,sans-serif;font-size:2.4rem;font-weight:800;letter-spacing:-.02em;line-height:1;font-variant-numeric:tabular-nums}
+.meter{height:10px;border-radius:999px;background:var(--soft);overflow:hidden;margin:.8rem 0 .35rem}
+.meter span{display:block;height:100%;background:var(--pine);width:0;transition:width .3s}
+.meter.over span{background:var(--danger)}
+.meter-label{display:flex;justify-content:space-between;font-size:.85rem;color:var(--muted)}
+.split{display:grid;grid-template-columns:1fr 1fr;gap:.6rem;margin-top:.9rem}
+.split div{background:var(--mist);border-radius:10px;padding:.6rem .7rem}
+.split b{display:block;font-size:1.15rem;font-variant-numeric:tabular-nums}
+.split span{font-size:.82rem;color:var(--muted)}
+.settle{margin:.7rem 0 0;font-size:.92rem}
+label.f{display:block;font-weight:600;font-size:.88rem;margin:.7rem 0 .3rem}
+input[type="text"],input[type="number"],select{width:100%;font:inherit;font-size:16px;color:var(--ink);background:var(--mist);border:1px solid var(--line);border-radius:10px;padding:.65rem .75rem}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:.6rem}
+.seg.two{grid-template-columns:1fr 1fr}
+.form-actions{margin-top:.9rem}
+.form-actions .btn{width:100%;justify-content:center;padding:.75rem;font-size:1rem;border-radius:12px}
+.err{color:var(--danger);font-size:.88rem;margin:.5rem 0 0;min-height:1.2em}
+.exp-day{font-weight:700;font-size:.9rem;color:var(--muted);margin:1rem 0 .4rem}
+.exp{display:flex;align-items:center;gap:.6rem;padding:.6rem 0;border-bottom:1px solid var(--line)}
+.exp:last-child{border-bottom:0}
+.exp .what{flex:1;min-width:0}
+.exp .what b{display:block;font-weight:600;overflow-wrap:anywhere}
+.exp .what span{font-size:.82rem;color:var(--muted)}
+.exp .amt{font-weight:700;font-variant-numeric:tabular-nums;white-space:nowrap}
+.exp .rm{border:0;background:none;color:var(--muted);font-size:.8rem;font-weight:600;padding:.4rem;cursor:pointer;white-space:nowrap}
+.exp .rm.arm{color:var(--danger)}
+details.plan summary{cursor:pointer;font-weight:600}
+.plan table{width:100%;border-collapse:collapse;font-size:.9rem;margin-top:.6rem}
+.plan td{padding:.4rem 0;border-bottom:1px solid var(--line)}
+.plan td:last-child{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+.plan tfoot td{font-weight:700;border-bottom:0}
+
+/* Checklists */
+.cl{list-style:none;margin:0;padding:0}
+.cl li{border-bottom:1px solid var(--line)}
+.cl li:last-child{border-bottom:0}
+.cl label{display:flex;align-items:flex-start;gap:.7rem;padding:.7rem 0;cursor:pointer}
+.cl input{appearance:none;-webkit-appearance:none;flex:none;width:22px;height:22px;border:2px solid var(--ridge);border-radius:6px;margin:.05rem 0 0;display:grid;place-items:center;background:var(--mist);cursor:pointer}
+.cl input:checked{background:var(--pine);border-color:var(--pine)}
+.cl input:checked::after{content:"";width:6px;height:11px;border:solid var(--on-pine);border-width:0 2.5px 2.5px 0;transform:translateY(-1px) rotate(45deg)}
+.cl input:checked + span{color:var(--muted);text-decoration:line-through}
+.progress{font-size:.88rem;color:var(--muted);margin:-.3rem 0 .5rem}
+
+/* Info */
+.kv{margin:0;padding:0;list-style:none}
+.kv li{padding:.5rem 0;border-bottom:1px solid var(--line);font-size:.95rem}
+.kv li:last-child{border-bottom:0}
+.contact{display:flex;justify-content:space-between;align-items:center;gap:.6rem;padding:.55rem 0;border-bottom:1px solid var(--line)}
+.contact:last-child{border-bottom:0}
+.contact b{display:block;font-weight:600}
+.contact span{font-size:.82rem;color:var(--muted)}
+.tips{margin:0;padding-left:1.1rem}
+.tips li{margin:.35rem 0;font-size:.95rem}
+
+/* Tab bar */
+.tabbar{position:fixed;left:0;right:0;bottom:0;z-index:10;background:var(--paper);border-top:1px solid var(--line);padding-bottom:env(safe-area-inset-bottom,0px)}
+.tabbar .in{max-width:560px;margin:0 auto;display:grid;grid-template-columns:repeat(4,1fr)}
+.tabbar button{border:0;background:none;padding:.55rem 0 .5rem;display:flex;flex-direction:column;align-items:center;gap:.15rem;font-size:.75rem;font-weight:600;color:var(--muted);cursor:pointer}
+.tabbar svg{width:24px;height:24px}
+.tabbar button[aria-selected="true"]{color:var(--pine)}
+
+.toast{position:fixed;left:50%;bottom:calc(84px + env(safe-area-inset-bottom,0px));transform:translate(-50%,20px);background:var(--ink);color:var(--mist);padding:.55rem 1rem;border-radius:999px;font-weight:600;font-size:.9rem;opacity:0;pointer-events:none;transition:opacity .2s,transform .2s;z-index:20}
+.toast.show{opacity:1;transform:translate(-50%,0)}
+@media (prefers-reduced-motion: reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header class="sky" id="sky" data-phase="day">
+  <div class="sky-bg"></div>
+  <svg viewBox="0 0 400 120" preserveAspectRatio="none" aria-hidden="true">
+    <g class="stars" fill="#fff"><circle cx="40" cy="14" r="1"/><circle cx="120" cy="30" r="1.2"/><circle cx="210" cy="10" r=".9"/><circle cx="330" cy="24" r="1.1"/><circle cx="370" cy="8" r=".8"/><circle cx="270" cy="38" r=".9"/></g>
+    <circle id="sunDot" cx="300" cy="40" r="14" fill="var(--sun)"/>
+    <path d="M0 78 Q100 70 200 75 T400 72 V120 H0Z" fill="var(--lakeC)"/>
+    <path d="M205 78 L236 60 Q246 54 256 61 L276 72 Q292 68 306 78Z" fill="var(--ridgeA)"/>
+    <ellipse cx="247" cy="60.5" rx="5" ry="1.4" fill="var(--lakeC)"/>
+    <path d="M0 120 V92 Q60 84 120 90 Q190 97 250 98 Q330 100 400 90 V120Z" fill="var(--ridgeB)"/>
+    <g fill="var(--ridgeB)"><path d="M30 91 l4 -13 l4 13z"/><path d="M42 90 l3 -10 l3 10z"/><path d="M350 92 l4 -14 l4 14z"/><path d="M362 93 l3 -10 l3 10z"/></g>
+  </svg>
+  <div class="sky-text">
+    <div class="sky-top"><span>Jr. &amp; Ebeth in Tagaytay</span><span class="clock" id="clock"></span></div>
+    <p class="lead" id="nowLead"></p>
+    <h1 id="nowTitle">Tagaytay, Nov 16 to 18</h1>
+    <p class="next" id="nowNext"></p>
+  </div>
+</header>
+
+<main>
+  <!-- PLAN -->
+  <section class="view on" id="view-plan" aria-label="Plan">
+    <div class="days"><div class="seg" role="tablist" id="daySeg"></div></div>
+    <div class="day-intro"><h2 id="dayTitle"></h2><p id="daySub"></p><div class="day-meta"><span id="dayDone"></span><span id="dayCost"></span></div></div>
+    <ol class="tl" id="timeline"></ol>
+  </section>
+
+  <!-- SPEND -->
+  <section class="view" id="view-spend" aria-label="Spending">
+    <div class="section">
+      <h2>Spending</h2>
+      <div class="panel">
+        <div class="muted small">Spent so far</div>
+        <div class="total" id="spentTotal">₱0</div>
+        <div class="meter" id="spendMeter"><span></span></div>
+        <div class="meter-label"><span id="spendLeft"></span><span>₱10,000 budget</span></div>
+        <div class="split">
+          <div><span>Jr. paid</span><b id="paidJr">₱0</b></div>
+          <div><span>Ebeth paid</span><b id="paidEls">₱0</b></div>
+        </div>
+        <p class="settle" id="settle"></p>
+      </div>
+
+      <div class="panel" id="addPanel">
+        <h3>Add an expense</h3>
+        <label class="f" for="amt">Amount (₱)</label>
+        <input type="number" id="amt" inputmode="decimal" min="0" step="1" placeholder="0">
+        <label class="f" for="what">What for</label>
+        <input type="text" id="what" maxlength="80" placeholder="e.g. Tricycle to Picnic Grove">
+        <div class="row2">
+          <div><label class="f" for="expDay">Day</label>
+            <select id="expDay"><option value="0">Day 1 · Mon</option><option value="1">Day 2 · Tue</option><option value="2">Day 3 · Wed</option></select></div>
+          <div><span class="f" style="display:block;font-weight:600;font-size:.88rem;margin:.7rem 0 .3rem" id="payLbl">Paid by</span>
+            <div class="seg two" role="radiogroup" aria-labelledby="payLbl" id="paySeg">
+              <button type="button" role="radio" aria-checked="true" data-p="Jr." aria-selected="true">Jr.</button>
+              <button type="button" role="radio" aria-checked="false" data-p="Ebeth" aria-selected="false">Ebeth</button>
+            </div></div>
+        </div>
+        <p class="err" id="expErr" role="alert"></p>
+        <div class="form-actions"><button type="button" class="btn primary" id="addExp">Add expense</button></div>
+      </div>
+
+      <div class="panel">
+        <h3>Expenses</h3>
+        <div id="expList"></div>
+      </div>
+
+      <div class="panel">
+        <details class="plan">
+          <summary>Planned budget: ₱10,550</summary>
+          <table>
+            <tbody>
+              <tr><td>Airbnb, 2 nights</td><td>₱4,400</td></tr>
+              <tr><td>DLTB bus, both ways</td><td>₱600</td></tr>
+              <tr><td>To and from Buendia</td><td>₱200</td></tr>
+              <tr><td>Tricycles and jeepneys</td><td>₱900</td></tr>
+              <tr><td>Picnic Grove entrance and zipline</td><td>₱750</td></tr>
+              <tr><td>Food and groceries</td><td>₱3,700</td></tr>
+            </tbody>
+            <tfoot><tr><td>Total, about ₱550 over budget</td><td>₱10,550</td></tr></tfoot>
+          </table>
+          <p class="small muted" style="margin:.7rem 0 0">To get back under ₱10,000: lunch at Bulalo House instead of Charito, and a carinderia dinner instead of La View De Taal. Together they save about ₱800.</p>
+        </details>
+      </div>
+    </div>
+  </section>
+
+  <!-- PACK -->
+  <section class="view" id="view-pack" aria-label="Packing">
+    <div class="section">
+      <h2>Before you go</h2>
+      <div class="panel">
+        <h3>To confirm</h3>
+        <p class="progress" id="todoProg"></p>
+        <ul class="cl" id="todoList"></ul>
+      </div>
+      <div class="panel">
+        <h3>Packing</h3>
+        <p class="progress" id="packProg"></p>
+        <ul class="cl" id="packList"></ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- INFO -->
+  <section class="view" id="view-info" aria-label="Info">
+    <div class="section">
+      <h2>Your stay</h2>
+      <div class="panel">
+        <h3>Cottage Charm @ Serin East</h3>
+        <ul class="kv">
+          <li>22 sqm studio, 7th floor, Avida Serin East Tower 1, behind Ayala Malls Serin.</li>
+          <li>Smartlock self check-in from 2 PM, Mon Nov 16.</li>
+          <li>Check-out Wed Nov 18 at 12 PM. The listing says no late check-out, so confirm with host Leah.</li>
+          <li>Kitchenette is for light cooking only. Starter kit for 2: towels, toiletries, water, coffee, tea.</li>
+          <li>Wi-Fi, Netflix, hot shower. No pool. Follow CLAYGO: trash goes to the garbage room beside the elevator.</li>
+        </ul>
+        <div class="actions" style="margin-top:.8rem">
+          <a class="btn primary" target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&amp;query=Avida%20Serin%20East%20Tower%201%20Tagaytay">Open in Maps</a>
+          <a class="btn" target="_blank" rel="noopener" href="https://www.airbnb.com/rooms/32661833">Airbnb listing</a>
+        </div>
+      </div>
+
+      <h2>Contacts</h2>
+      <div class="panel" id="contacts"></div>
+
+      <h2>Good to know</h2>
+      <div class="panel">
+        <ul class="tips">
+          <li>November nights are cool, around 18–26 °C. Bring a jacket.</li>
+          <li>Save a trusted tricycle driver's number. Ride-hailing is hard to find, and you'll make several condo trips on Day 2.</li>
+          <li>Agree on tricycle fares before riding, especially at night.</li>
+          <li>Fog rolls in fast. Views are clearest early morning.</li>
+          <li>Traffic builds on Aguinaldo Highway on the way home, so leave buffer time.</li>
+          <li>Check PHIVOLCS for Taal advisories before the trip.</li>
+          <li>Keep ₱500–₱1,000 emergency cash outside the budget.</li>
+        </ul>
+      </div>
+
+      <h2>Use it like an app</h2>
+      <div class="panel">
+        <ul class="kv">
+          <li><b>iPhone:</b> open this page in Safari, tap Share, then Add to Home Screen.</li>
+          <li><b>Android:</b> open this page in Chrome, tap the ⋮ menu, then Add to Home screen.</li>
+          <li class="muted small">Ticks and expenses are saved on this phone only. Jr. and Ebeth each keep their own copy.</li>
+        </ul>
+      </div>
+      <div style="height:1rem"></div>
+    </div>
+  </section>
+</main>
+
+<nav class="tabbar" aria-label="Sections">
+  <div class="in" role="tablist">
+    <button role="tab" aria-selected="true" data-v="plan"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="6" cy="6" r="2"/><circle cx="6" cy="18" r="2"/><path d="M6 8v8M11 6h9M11 18h9M11 12h6"/></svg>Plan</button>
+    <button role="tab" aria-selected="false" data-v="spend"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="6" width="18" height="13" rx="2"/><path d="M3 10h18M7 15h3"/></svg>Spend</button>
+    <button role="tab" aria-selected="false" data-v="pack"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 7V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><rect x="4" y="7" width="16" height="14" rx="3"/><path d="M9 13l2 2 4-4"/></svg>Pack</button>
+    <button role="tab" aria-selected="false" data-v="info"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11l9-7 9 7v9a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/></svg>Stay</button>
+  </div>
+</nav>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+</div>
+
+<script>
+(function(){
+"use strict";
+var DAYS = [{"title": "Arrival and a quiet night in", "sub": "Monday, November 16. Bus up, late lunch with a view, groceries, and an early night to recharge.", "stops": [{"time": "10:00 AM", "key": true, "title": "Prepare and pack", "desc": "Pack light in a backpack since you'll be commuting. Bring snacks, water, and small bills for fares.", "tag": "At home", "cost": "Free"}, {"time": "11:00 AM", "key": false, "title": "Head to DLTB Buendia terminal", "desc": "Take the LRT or a jeep to the terminal near LRT Buendia (Gil Puyat). Aim to arrive by 11:45 AM.", "tag": "Travel", "cost": "~₱100 for 2"}, {"time": "12:00 PM", "key": true, "title": "Board the DLTB bus", "desc": "Look for the signboard \"Nasugbu via Aguinaldo\". Tell the conductor you're getting off at Olivarez Plaza. About 2 hours, pay the conductor on board.", "tag": "Bus", "cost": "~₱300 for 2"}, {"time": "2:00 PM", "key": true, "title": "Arrive and check in at Cottage Charm", "desc": "Short tricycle ride from Olivarez Plaza to Avida Serin East Tower 1, behind Ayala Malls Serin. Smartlock self check-in, 7th floor.", "tag": "Stay", "cost": "~₱60 tricycle"}, {"time": "2:45 PM", "key": true, "title": "Late lunch at Lawa Cafe", "desc": "Tricycle west along Aguinaldo Highway. Share a big plate like grilled liempo, add turon and coffee, and enjoy the Taal view from the al fresco tables.", "tag": "Food", "cost": "~₱700 incl. ride"}, {"time": "4:00 PM", "key": false, "title": "Grocery run at Ayala Malls Serin", "desc": "Tricycle back to Serin and hit the supermarket behind the building. Shop for tonight's dinner and two breakfasts: rice, eggs, bread, hotdogs or longganisa, canned goods or pancit canton, some veggies, fruit, and water. Keep it simple since the kitchenette is for light cooking only.", "tag": "Shopping", "cost": "~₱510 incl. tricycle"}, {"time": "5:00 PM", "key": true, "title": "Rest at the condo", "desc": "Ebeth worked 2 AM to 8 AM on Sunday, so take the rest of the afternoon slow. Nap, hot shower, Netflix.", "tag": "Rest", "cost": "Free"}, {"time": "7:00 PM", "key": false, "title": "Cook dinner at the condo", "desc": "Cook a simple dinner with the groceries you bought earlier.", "tag": "Food", "cost": "Covered"}, {"time": "9:00 PM", "key": false, "title": "Early night", "desc": "Lights out early for the 5 AM wake-up.", "tag": "Rest", "cost": "Free"}]}, {"title": "Picnic Grove, bulalo, and work with a view", "sub": "Tuesday, November 17. An early Picnic Grove walk, work blocks at the condo, bulalo lunch, and a Taal-view sunset.", "stops": [{"time": "5:00 AM", "key": false, "title": "Wake up and catch the sunrise", "desc": "Sunrise is around 5:45 to 6:00 AM. Ask the Serin East reception about the viewing deck for morning mist over Taal.", "tag": "Views", "cost": "Free"}, {"time": "6:00 AM", "key": false, "title": "Breakfast at the condo", "desc": "Cook breakfast with your groceries and the starter-kit coffee.", "tag": "Food", "cost": "Covered"}, {"time": "7:00 AM", "key": true, "title": "Picnic Grove and zipline", "desc": "Tricycle down Tagaytay–Calamba Road. Ride the zipline at Picnic Town (about ₱300 each for a two-way ride), then walk the ridge, Sky Walk, and viewpoints while it's cool and quiet. Opening hours vary by source, so call (046) 413 4206 to confirm the park and zipline are running by 7 AM on a weekday.", "tag": "Activity", "cost": "~₱850 for 2 incl. zipline and tricycle"}, {"time": "9:00 AM", "key": false, "title": "Back to the condo to rest and work", "desc": "Tricycle back to Serin. Rest up and get some work done on the Wi-Fi.", "tag": "Work", "cost": "~₱100 tricycle"}, {"time": "12:00 PM", "key": true, "title": "Lunch: bulalo at Charito by Bag of Beans", "desc": "Short tricycle ride down Aguinaldo Highway. A cozy heritage-house dining room with a Taal Lake view, and reviewers say the bulalo is rich and flavorful. One order is enough for two. It gets busy at noon, so go a little early.", "tag": "Food", "cost": "~₱1,060 incl. ride"}, {"time": "1:45 PM", "key": false, "title": "Pink Sisters Adoration Convent", "desc": "Quick tricycle ride from Charito, then back to the condo. A quiet chapel stop, dress modestly. Donations are optional.", "tag": "Culture", "cost": "~₱120 tricycle"}, {"time": "2:30 PM", "key": false, "title": "Condo break to work", "desc": "Another work block back at the condo.", "tag": "Work", "cost": "Free"}, {"time": "4:30 PM", "key": true, "title": "Work and sunset at Sip n' Brew by Miara", "desc": "Leave the condo around 4:00 and jeep west on Tagaytay–Nasugbu Highway toward Mendez. Settle in with a drink and pancakes, keep working with a wide Taal view, and pause for sunset at around 5:25 PM. Bring a power bank and mobile data in case outlets or Wi-Fi are limited.", "tag": "Sunset", "cost": "~₱400 incl. jeep"}, {"time": "7:00 PM", "key": false, "title": "Dinner at La View De Taal", "desc": "A short walk from Sip n' Brew at Mendez Crossing East. Filipino dishes with portions big enough to share, in a quiet, uncrowded spot. Open until 10 PM (closed Mondays, open Tuesday).", "tag": "Food", "cost": "~₱700"}, {"time": "8:00 PM", "key": false, "title": "Back to the condo", "desc": "Tricycle back to Serin. Agree on the fare first since night rides cost more.", "tag": "Rest", "cost": "~₱150"}]}, {"title": "Slow morning, then home", "sub": "Wednesday, November 18. Church, noon check-out, lunch at the mall, and the bus back.", "stops": [{"time": "7:30 AM", "key": false, "title": "Breakfast at the condo", "desc": "Cook breakfast with the last of your groceries.", "tag": "Food", "cost": "Covered"}, {"time": "8:45 AM", "key": false, "title": "Our Lady of Lourdes Parish", "desc": "A peaceful morning stop close to Serin.", "tag": "Culture", "cost": "~₱50 tricycle"}, {"time": "10:30 AM", "key": false, "title": "Pack up", "desc": "Final sweep for chargers and laptops, and follow the CLAYGO rule: trash goes to the garbage room beside the elevator.", "tag": "Stay", "cost": "Free"}, {"time": "12:00 PM", "key": true, "title": "Check out", "desc": "The listing says there's no late check-out, so confirm with Leah that 12 PM is okay.", "tag": "Stay", "cost": "Free"}, {"time": "12:30 PM", "key": false, "title": "Lunch at LZM Restaurant, Ayala Malls Serin", "desc": "Walk over with your bags. Filipino classics in big servings, and reviewers like the boneless bangus and kare-kare. It gets busy at mealtimes.", "tag": "Food", "cost": "~₱450"}, {"time": "1:45 PM", "key": false, "title": "Tricycle to Olivarez Plaza", "desc": "Head to the bus stop with your bags. Grab water and use the restroom.", "tag": "Travel", "cost": "~₱60"}, {"time": "2:00 PM", "key": true, "title": "Bus home to Buendia", "desc": "Catch a DLTB bus with a \"Buendia\" signboard. Expect about 2.5 to 4 hours with traffic, then LRT or jeep home.", "tag": "Bus", "cost": "~₱400 for 2 incl. LRT"}]}];
+var DAY_TABS = [["Mon","Nov 16"],["Tue","Nov 17"],["Wed","Nov 18"]];
+var BUDGET = 10000;
+
+var MAPQ = [
+  [/Buendia terminal/i,"DLTB Bus Terminal Buendia Pasay"],
+  [/Cottage Charm|condo|Rest at|Early night|Wake up|Pack up|Check out/i,"Avida Serin East Tower 1 Tagaytay"],
+  [/Lawa Cafe/i,"Lawa Cafe Tagaytay"],
+  [/Grocery run/i,"Ayala Malls Serin Tagaytay"],
+  [/Picnic Grove/i,"Tagaytay Picnic Grove"],
+  [/Charito/i,"Charito by Bag of Beans Tagaytay"],
+  [/Pink Sisters/i,"Pink Sisters Adoration Convent Tagaytay"],
+  [/Sip n' Brew/i,"Sip n' Brew by Miara Tagaytay"],
+  [/La View De Taal/i,"La View De Taal Tagaytay Restaurant"],
+  [/Lourdes/i,"Our Lady of Lourdes Parish Tagaytay"],
+  [/LZM/i,"LZM Restaurant Ayala Malls Serin"],
+  [/Olivarez/i,"Olivarez Plaza Tagaytay"]
+];
+var PHONES = [
+  [/Picnic Grove/i,"+63464134206"],
+  [/Charito/i,"+639177160536"],
+  [/La View De Taal/i,"+639694773336"],
+  [/LZM/i,"+639266167504"]
+];
+var CONTACTS = [
+  ["Tagaytay Picnic Grove","Confirm the zipline runs by 7 AM","+63464134206","(046) 413 4206"],
+  ["Charito by Bag of Beans","Day 2 lunch","+639177160536","0917 716 0536"],
+  ["La View De Taal","Day 2 dinner, closed Mondays","+639694773336","0969 477 3336"],
+  ["LZM Restaurant, Ayala Serin","Day 3 lunch","+639266167504","0926 616 7504"]
+];
+var TODOS = [
+  ["leah-checkout","Ask Leah if a 12 PM check-out on Wed is okay"],
+  ["leah-kitchen","Ask Leah about the stove, frying pan, cooking oil, and salt"],
+  ["pg-zipline","Call Picnic Grove to confirm the zipline runs by 7 AM on Tuesday"],
+  ["phivolcs","Check PHIVOLCS for Taal advisories"],
+  ["cash","Set aside ₱500–₱1,000 emergency cash"]
+];
+var PACK = [
+  ["jacket","Light jacket or hoodie"],["umbrella","Umbrella or rain jacket"],["shoes","Comfortable walking shoes"],
+  ["ids","Valid IDs and Airbnb booking"],["cashsmall","Cash in small bills for bus, tricycles, and markets"],
+  ["backpack","Light backpack for the bus"],["laptops","Laptops, chargers, and power bank for work"],
+  ["meds","Personal medicines"],["bag","Reusable grocery bag"],["towel","Spare towel (extras cost extra)"]
+];
+
+/* storage: per-phone, always guarded */
+function load(k,d){try{var v=localStorage.getItem(k);return v?JSON.parse(v):d;}catch(e){return d;}}
+function save(k,v){try{localStorage.setItem(k,JSON.stringify(v));}catch(e){}}
+var done = load("tt.done",{});
+var todos = load("tt.todo",{});
+var pack = load("tt.pack",{});
+var spend = load("tt.spend",[]);
+if(!Array.isArray(spend)) spend=[];
+spend.forEach(function(e){if(e&&e.by==="Els")e.by="Ebeth";});
+
+function $(id){return document.getElementById(id);}
+function esc(s){return String(s).replace(/[&<>"']/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c];});}
+function peso(n){return "₱"+Math.round(n).toLocaleString("en-PH");}
+function toMins(t){var m=t.match(/(\d+):(\d+)\s*(AM|PM)/i);if(!m)return 0;var h=+m[1]%12;if(/PM/i.test(m[3]))h+=12;return h*60+ +m[2];}
+function firstPeso(c){var m=c.replace(/,/g,"").match(/₱(\d+)/);return m?+m[1]:0;}
+function find(list,title){for(var i=0;i<list.length;i++){if(list[i][0].test(title))return list[i][1];}return null;}
+function fmtDur(m){var h=Math.floor(m/60),r=m%60;return h?(h+"h "+(r?r+"m":"")).trim():r+" min";}
+
+/* Manila time */
+var fmt;
+try{fmt=new Intl.DateTimeFormat("en-CA",{timeZone:"Asia/Manila",year:"numeric",month:"2-digit",day:"2-digit",hour:"2-digit",minute:"2-digit",hourCycle:"h23"});}catch(e){fmt=null;}
+function manila(){
+  var d=new Date();
+  if(fmt){var p={};fmt.formatToParts(d).forEach(function(x){p[x.type]=x.value;});
+    return {y:+p.year,m:+p.month,d:+p.day,mins:(+p.hour%24)*60+ +p.minute};}
+  var u=new Date(d.getTime()+8*3600000);return {y:u.getUTCFullYear(),m:u.getUTCMonth()+1,d:u.getUTCDate(),mins:u.getUTCHours()*60+u.getUTCMinutes()};
+}
+function tripDayIndex(n){if(n.y===2026&&n.m===11&&n.d>=16&&n.d<=18)return n.d-16;return -1;}
+function daysUntil(n){var a=Date.UTC(n.y,n.m-1,n.d),b=Date.UTC(2026,10,16);return Math.round((b-a)/86400000);}
+function clockStr(mins){var h=Math.floor(mins/60),m=mins%60,ap=h>=12?"PM":"AM";h=h%12||12;return h+":"+(m<10?"0":"")+m+" "+ap;}
+
+/* state */
+var curDay=0, nowIdx=-1;
+var view="plan";
+var payer="Jr.";
+
+/* ---------- header ---------- */
+function phaseFor(mins){if(mins>=300&&mins<420)return "dawn";if(mins>=420&&mins<960)return "day";if(mins>=960&&mins<1110)return "golden";return "night";}
+function sunPos(mins){ // rough arc across the header
+  var sky=$("sunDot"); if(!sky)return;
+  var ph=phaseFor(mins);
+  var t;
+  if(ph==="night"){t=((mins+1440-1110)%1440)/630;sky.setAttribute("r","10");}
+  else{t=(mins-300)/810;sky.setAttribute("r","14");}
+  t=Math.max(0,Math.min(1,t));
+  var x=40+t*320, y=62-Math.sin(t*Math.PI)*46;
+  sky.setAttribute("cx",x.toFixed(1));sky.setAttribute("cy",y.toFixed(1));
+}
+function renderHeader(){
+  var n=manila(), di=tripDayIndex(n), title, next="", lead="";
+  $("sky").setAttribute("data-phase",phaseFor(n.mins));
+  sunPos(n.mins);
+  $("clock").textContent=clockStr(n.mins);
+  nowIdx=-1;
+  if(di<0){
+    var du=daysUntil(n);
+    if(du>1){title=du+" days to Tagaytay";next="The bus leaves Buendia at <b>12:00 PM</b> on Monday, Nov 16.";}
+    else if(du===1){title="Tagaytay tomorrow";next="Pack tonight. The bus leaves Buendia at <b>12:00 PM</b>.";}
+    else{title="Welcome home";next="Hope Tagaytay was good to you both.";}
+  }else{
+    var st=DAYS[di].stops, i, cur=-1;
+    for(i=0;i<st.length;i++){if(toMins(st[i].time)<=n.mins)cur=i;}
+    nowIdx=cur;
+    var nx=st[cur+1];
+    if(cur<0){title="Good morning";next="First up at <b>"+esc(st[0].time)+"</b>: "+esc(st[0].title)+".";}
+    else{
+      title=st[cur].title;
+      lead=nx?"Now, until "+nx.time:"Now";
+      if(nx){next="Next at <b>"+esc(nx.time)+"</b>: "+esc(nx.title)+", in "+fmtDur(toMins(nx.time)-n.mins)+".";}
+      else if(di<2){next="That's the day. Tomorrow starts with "+esc(DAYS[di+1].stops[0].title.toLowerCase())+" at "+esc(DAYS[di+1].stops[0].time)+".";}
+      else{next="Safe trip home, Jr. and Ebeth.";}
+    }
+  }
+  $("nowLead").textContent=lead;
+  $("nowTitle").textContent=title;
+  $("nowNext").innerHTML=next;
+  return di;
+}
+
+/* ---------- plan ---------- */
+var ICON_CHECK='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>';
+var ICON_MAP='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21s-7-6.2-7-11.5A7 7 0 0 1 19 9.5C19 14.8 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.5"/></svg>';
+var ICON_CALL='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 4h4l2 5-2.5 1.5a11 11 0 0 0 5 5L15 13l5 2v4a2 2 0 0 1-2 2A16 16 0 0 1 3 6a2 2 0 0 1 2-2"/></svg>';
+var ICON_PESO='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 20V4h5a4 4 0 0 1 0 8H8M5 8h13M5 11h13"/></svg>';
+
+function renderDaySeg(todayIdx){
+  var h="";
+  for(var i=0;i<3;i++){
+    h+='<button role="tab" aria-selected="'+(i===curDay)+'" data-d="'+i+'">Day '+(i+1)+(i===todayIdx?'<span class="today-dot" aria-label="today"></span>':'')+'<small>'+DAY_TABS[i][0]+' · '+DAY_TABS[i][1]+'</small></button>';
+  }
+  $("daySeg").innerHTML=h;
+}
+var openSet={};
+function renderPlan(todayIdx){
+  renderDaySeg(todayIdx);
+  var d=DAYS[curDay];
+  $("dayTitle").textContent=d.title;
+  $("daySub").textContent=d.sub;
+  var h="", nd=0, est=0;
+  d.stops.forEach(function(s,i){
+    var id=curDay+"-"+i, isDone=!!done[id], isNow=(curDay===todayIdx&&i===nowIdx);
+    if(isDone)nd++;
+    est+=firstPeso(s.cost);
+    var q=find(MAPQ,s.title), ph=find(PHONES,s.title), amt=firstPeso(s.cost);
+    var open=!!openSet[id]||(isNow&&openSet[id]!==false);
+    h+='<li class="stop'+(s.key?' key':'')+(isDone?' done':'')+(isNow?' now':'')+'">'+
+      '<button class="check" data-done="'+id+'" aria-pressed="'+isDone+'" aria-label="Mark '+esc(s.title)+' as done">'+ICON_CHECK+'</button>'+
+      '<div class="card"><button class="head" data-open="'+id+'" aria-expanded="'+open+'">'+
+        '<span class="row"><span class="t">'+esc(s.time)+'</span>'+(isNow?'<span class="badge">Now</span>':'')+'</span>'+
+        '<span class="title">'+esc(s.title)+'</span><span class="cost">'+esc(s.cost)+'</span></button>'+
+      '<div class="more"'+(open?'':' hidden')+'><p>'+esc(s.desc)+'</p><div class="actions">'+
+        (q?'<a class="btn" target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&query='+encodeURIComponent(q)+'">'+ICON_MAP+'Map</a>':'')+
+        (ph?'<a class="btn" href="tel:'+ph+'">'+ICON_CALL+'Call</a>':'')+
+        (amt?'<button class="btn" data-log="'+id+'">'+ICON_PESO+'Log cost</button>':'')+
+      '</div></div></div></li>';
+  });
+  $("timeline").innerHTML=h;
+  $("dayDone").textContent=nd+" of "+d.stops.length+" done";
+  $("dayCost").textContent="About "+peso(est)+" planned";
+}
+
+/* ---------- spend ---------- */
+function renderSpend(){
+  var tot=0,jr=0,els=0;
+  spend.forEach(function(e){tot+=e.amt;if(e.by==="Ebeth")els+=e.amt;else jr+=e.amt;});
+  $("spentTotal").textContent=peso(tot);
+  var pct=Math.min(100,tot/BUDGET*100);
+  var m=$("spendMeter");m.firstElementChild.style.width=pct+"%";m.classList.toggle("over",tot>BUDGET);
+  m.setAttribute("role","img");m.setAttribute("aria-label",peso(tot)+" of "+peso(BUDGET)+" spent");
+  $("spendLeft").textContent=tot>BUDGET?peso(tot-BUDGET)+" over":peso(BUDGET-tot)+" left";
+  $("paidJr").textContent=peso(jr);$("paidEls").textContent=peso(els);
+  var diff=(jr-els)/2;
+  $("settle").textContent=tot===0?"Log what each of you pays, and this shows how to split it evenly.":
+    Math.abs(diff)<1?"You're even.":(diff>0?"To split evenly, Ebeth pays Jr. "+peso(diff)+".":"To split evenly, Jr. pays Ebeth "+peso(-diff)+".");
+  if(!spend.length){$("expList").innerHTML='<p class="muted small" style="margin:0">No expenses yet. Add one above, or tap Log cost on any stop in the plan.</p>';return;}
+  var h="";
+  [0,1,2].forEach(function(d){
+    var items=spend.filter(function(e){return e.day===d;});
+    if(!items.length)return;
+    var sub=items.reduce(function(a,e){return a+e.amt;},0);
+    h+='<div class="exp-day">Day '+(d+1)+' · '+DAY_TABS[d][0]+' · '+peso(sub)+'</div>';
+    items.slice().reverse().forEach(function(e){
+      h+='<div class="exp"><div class="what"><b>'+esc(e.what||"Expense")+'</b><span>Paid by '+esc(e.by)+'</span></div><div class="amt">'+peso(e.amt)+'</div><button class="rm" data-rm="'+e.id+'" aria-label="Remove '+esc(e.what||"expense")+'">Remove</button></div>';
+    });
+  });
+  $("expList").innerHTML=h;
+}
+function setPayer(p){payer=p;Array.prototype.forEach.call($("paySeg").children,function(b){var on=b.getAttribute("data-p")===p;b.setAttribute("aria-checked",on);b.setAttribute("aria-selected",on);});}
+function addExpense(){
+  var a=parseFloat($("amt").value), w=$("what").value.trim();
+  if(!(a>0)){$("expErr").textContent="Enter an amount greater than zero.";$("amt").focus();return;}
+  $("expErr").textContent="";
+  spend.push({id:Date.now().toString(36)+Math.random().toString(36).slice(2,6),amt:Math.round(a*100)/100,what:w,day:+$("expDay").value,by:payer});
+  save("tt.spend",spend);
+  $("amt").value="";$("what").value="";
+  renderSpend();toast("Expense added");
+}
+
+/* ---------- checklists ---------- */
+function renderList(elId,progId,items,state,key,word){
+  var n=0,h="";
+  items.forEach(function(it){var c=!!state[it[0]];if(c)n++;
+    h+='<li><label><input type="checkbox" data-k="'+it[0]+'" data-list="'+key+'"'+(c?' checked':'')+'><span>'+esc(it[1])+'</span></label></li>';});
+  $(elId).innerHTML=h;
+  $(progId).textContent=n+" of "+items.length+" "+word;
+}
+function renderPack(){
+  renderList("todoList","todoProg",TODOS,todos,"todo","done");
+  renderList("packList","packProg",PACK,pack,"pack","packed");
+}
+function renderContacts(){
+  $("contacts").innerHTML=CONTACTS.map(function(c){return '<div class="contact"><div><b>'+esc(c[0])+'</b><span>'+esc(c[1])+' · '+esc(c[3])+'</span></div><a class="btn" href="tel:'+c[2]+'">'+ICON_CALL+'Call</a></div>';}).join("");
+}
+
+/* ---------- navigation ---------- */
+function showView(v){
+  view=v;
+  ["plan","spend","pack","info"].forEach(function(x){$("view-"+x).classList.toggle("on",x===v);});
+  Array.prototype.forEach.call(document.querySelectorAll(".tabbar button"),function(b){b.setAttribute("aria-selected",b.getAttribute("data-v")===v);});
+  $("sky").classList.toggle("compact",v!=="plan");
+  window.scrollTo(0,0);
+}
+var tt;
+function toast(msg){var t=$("toast");t.textContent=msg;t.classList.add("show");clearTimeout(tt);tt=setTimeout(function(){t.classList.remove("show");},1800);}
+
+/* ---------- events ---------- */
+document.addEventListener("click",function(ev){
+  var b=ev.target.closest("button");
+  if(!b)return;
+  if(b.hasAttribute("data-v")){showView(b.getAttribute("data-v"));return;}
+  if(b.hasAttribute("data-d")){curDay=+b.getAttribute("data-d");openSet={};renderPlan(renderHeader());return;}
+  if(b.hasAttribute("data-done")){var id=b.getAttribute("data-done");if(done[id])delete done[id];else done[id]=true;save("tt.done",done);renderPlan(renderHeader());return;}
+  if(b.hasAttribute("data-open")){var oid=b.getAttribute("data-open");var isOpen=b.getAttribute("aria-expanded")==="true";openSet[oid]=!isOpen;
+    b.setAttribute("aria-expanded",!isOpen);var more=b.nextElementSibling;if(more)more.hidden=isOpen;return;}
+  if(b.hasAttribute("data-log")){var p=b.getAttribute("data-log").split("-"),s=DAYS[+p[0]].stops[+p[1]];
+    showView("spend");$("amt").value=firstPeso(s.cost);$("what").value=s.title;$("expDay").value=p[0];
+    setTimeout(function(){$("addPanel").scrollIntoView({block:"start"});$("amt").focus();$("amt").select();},30);return;}
+  if(b.hasAttribute("data-p")){setPayer(b.getAttribute("data-p"));return;}
+  if(b.id==="addExp"){addExpense();return;}
+  if(b.hasAttribute("data-rm")){
+    if(!b.classList.contains("arm")){b.classList.add("arm");b.textContent="Tap to confirm";setTimeout(function(){if(b.isConnected){b.classList.remove("arm");b.textContent="Remove";}},3000);return;}
+    var rid=b.getAttribute("data-rm");spend=spend.filter(function(e){return e.id!==rid;});save("tt.spend",spend);renderSpend();toast("Expense removed");return;}
+});
+document.addEventListener("change",function(ev){
+  var el=ev.target;
+  if(el.matches('input[type="checkbox"][data-list]')){
+    var st=el.getAttribute("data-list")==="todo"?todos:pack;
+    if(el.checked)st[el.getAttribute("data-k")]=true;else delete st[el.getAttribute("data-k")];
+    save(el.getAttribute("data-list")==="todo"?"tt.todo":"tt.pack",st);renderPack();
+  }
+});
+$("amt").addEventListener("keydown",function(e){if(e.key==="Enter")addExpense();});
+$("what").addEventListener("keydown",function(e){if(e.key==="Enter")addExpense();});
+
+/* ---------- start ---------- */
+var today=renderHeader();
+curDay=today>=0?today:0;
+renderPlan(today);
+renderSpend();renderPack();renderContacts();
+setInterval(function(){var t=renderHeader();if(view==="plan")renderPlan(t);},60000);
+document.addEventListener("visibilitychange",function(){if(!document.hidden){var t=renderHeader();renderPlan(t);}});
+})();
+</script>
+</body>
+</html>
